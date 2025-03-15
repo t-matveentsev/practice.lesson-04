@@ -3,9 +3,31 @@ import { Wave } from 'react-animated-text';
 import Section from '../components/Section/Section';
 import Container from '../components/Container/Container';
 import Heading from '../components/Heading/Heading';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  selectBaseCurrency,
+  selectFilteredRates,
+  selectIsError,
+  selectIsLoading,
+  selectRates,
+} from '../redux/selectors';
+import { fetchLatestSymbols } from '../redux/currency/operation';
+import { useEffect } from 'react';
+import RatesList from '../components/RatesList/RatesList';
+import Loader from '../components/Loader/Loader';
+import Filter from '../components/Filter/Filter';
 
 const Rates = () => {
-  const isError = false;
+  const isError = useSelector(selectIsError);
+  const dispatch = useDispatch();
+  const isLoading = useSelector(selectIsLoading);
+  const baseCurrency = useSelector(selectBaseCurrency);
+  const filterCurrency = useSelector(selectFilteredRates);
+  const rates = useSelector(selectRates);
+
+  useEffect(() => {
+    dispatch(fetchLatestSymbols(baseCurrency));
+  }, [baseCurrency, dispatch]);
 
   return (
     <Section>
@@ -21,6 +43,9 @@ const Rates = () => {
             />
           }
         />
+        {rates.length > 0 && <Filter />}
+        {filterCurrency.length > 0 && <RatesList rates={filterCurrency} />}
+        {isLoading && <Loader />}
 
         {isError && (
           <Heading
